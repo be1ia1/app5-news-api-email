@@ -1,8 +1,16 @@
 import requests
 import datetime
-from email.mime.text import MIMEText
-from send_email import send_email
+# from email.mime.text import MIMEText
 
+# https://fedingo.com/how-to-send-html-mail-with-attachment-using-python/
+
+import email
+from email import encoders
+from email.mime.base import MIMEBase
+from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
+
+from send_email import send_email
 
 url = 'https://newsapi.org/v2/everything?' \
                             'q=ubuntu&' \
@@ -13,13 +21,33 @@ url = 'https://newsapi.org/v2/everything?' \
 request = requests.get(url)
 content = request.json()
 
-raw_message = []
+date_now = (datetime.datetime.now()).strftime('%d-%m-%Y')
+
+msg = MIMEMultipart('alternative')
+msg["Subject"] = f'News about Ubuntu {date_now}'
+msg["From"] = 'News API'
+
+message_body = ''
 
 for article in content['articles']:
-    item = f"{article['title']}\n{article['description']}\n<ln></ln>"
-    raw_message.append(item)
+    message_body += f"<p><b>{article['title']}</b><br>"
+    message_body += f"{article['description']}</p>"
 
-date_now = (datetime.datetime.now()).strftime('%d-%m-%Y')
+html = f"""\
+<html>
+<body>
+    {message_body}
+</body>
+</html>
+"""
+
+
+"""
+raw_message = []
+
+
+
+
 
 message = ''.join(raw_message)
 message = MIMEText(message, 'plain', 'utf-8')
@@ -33,7 +61,7 @@ message = f'''\
 send_email(message)
 # print(message)
 
-"""
+
 import streamlit as st
 from send_email import send_email
 
